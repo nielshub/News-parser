@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"incrowd/src/internal/handlers"
 	"incrowd/src/internal/repositories"
 	"incrowd/src/internal/services"
@@ -9,8 +10,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/globalsign/mgo"
 	"github.com/joho/godotenv"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
@@ -25,40 +28,32 @@ func main() {
 
 	// Connect to mongoDB in Docker
 	dbURL := os.Getenv("DBURL")
-	usersCollectionName := os.Getenv("USERSCOLLECTIONNAME")
+	sportNewsCollectionName := os.Getenv("SPORTNEWSCOLLECTIONNAME")
 	dataBaseName := os.Getenv("DATABASENAME")
-	session, err := mgo.Dial(dbURL)
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbURL))
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
+			log.Logger.Error().Msgf("DB client has been disconnected. Error: %s", err)
+			panic(err)
+		}
+	}()
 	log.Logger.Info().Msgf("Connected to users DB")
 
 	// Create repositories / services / handlers and app
-	db := mgo.Database{
-		Session: session,
-		Name:    dataBaseName,
-	}
+	db := client.Database(dataBaseName)
+	NonRelationalSportNewsDBRepository := repositories.NewMongoDBRepository(sportNewsCollectionName, db)
+	sportNewsService := services.NewSportNewsService(NonRelationalSportNewsDBRepository)
 
 	r := gin.Default()
 	app := r.Group("/")
 
-	NonRelationalUserDBRepository := repositories.NewMongoDBRepository(usersCollectionName, &db)
-	userService := services.NewUserService(NonRelationalUserDBRepository)
-
-	// Time to wait for rabbitMQ starts with docker-compose
+	// Time to cron get info
 	time.Sleep(20 * time.Second)
 
-	publisherService := service.NewPublisherConnection("userEvents", "")
-	if err := publisherService.Connect(); err != nil {
-		panic(err)
-	}
-	log.Logger.Info().Msgf("Connected to publisher service")
-	defer publisherService.Conn.Close()
-	defer publisherService.Channel.Close()
-
 	handlers.NewHealthHandler(app)
-	handlers.NewUserHandler(app, userService, publisherService)
+	handlers.NewSportNewsHandler(app, sportNewsService)
 
 	// Run server
 	log.Logger.Info().Msgf("Starting server")

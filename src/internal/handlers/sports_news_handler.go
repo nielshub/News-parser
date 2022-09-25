@@ -15,8 +15,8 @@ type SportNewsHandler struct {
 	sportNewsService ports.SportNewsService
 }
 
-func NewSportNewsHandler(app *gin.RouterGroup, sportNewsService ports.SportNewsService) SportNewsHandler {
-	newsAPI := SportNewsHandler{sportNewsService: sportNewsService}
+func NewSportNewsHandler(app *gin.RouterGroup, sportNewsService ports.SportNewsService) *SportNewsHandler {
+	newsAPI := &SportNewsHandler{sportNewsService: sportNewsService}
 
 	newsRooter := app.Group("/v1/teams/t94")
 	newsRooter.GET("/news", newsAPI.getNews)

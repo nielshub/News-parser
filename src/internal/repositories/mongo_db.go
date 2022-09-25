@@ -34,15 +34,15 @@ func (repo *MongoDBRepository) StoreNews(ctx context.Context, news []model.News)
 	return nil
 }
 
-func (repo *MongoDBRepository) GetNewsWithID(ctx context.Context, id string) (model.News, error) {
+func (repo *MongoDBRepository) GetNewsWithID(ctx context.Context, id string) (*model.News, error) {
 	var news model.News
 	filter := bson.M{"id": id}
 	err := repo.Database.Collection(repo.CollectionName).FindOne(ctx, filter).Decode(&news)
 	if err != nil {
-		return model.News{}, err
+		return &model.News{}, err
 	}
 
-	return news, nil
+	return &news, nil
 }
 
 func (repo *MongoDBRepository) GetNews(ctx context.Context) ([]model.News, error) {
@@ -51,6 +51,7 @@ func (repo *MongoDBRepository) GetNews(ctx context.Context) ([]model.News, error
 	if err != nil {
 		return nil, err
 	}
+	defer cur.Close(ctx)
 
 	err = cur.All(ctx, &newsArray)
 	if err != nil {
