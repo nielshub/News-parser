@@ -20,8 +20,8 @@ func (s *SportNewsService) StoreNews(ctx context.Context, news []model.News) err
 	return s.relationalSportNewsDBRepository.StoreNews(ctx, news)
 }
 
-func (s *SportNewsService) GetNewsWithID(ctx context.Context, key string, value string) (*model.News, error) {
-	return s.relationalSportNewsDBRepository.GetNewsWithID(ctx, key, value)
+func (s *SportNewsService) GetNewsWithID(ctx context.Context, id string) (*model.News, error) {
+	return s.relationalSportNewsDBRepository.GetNewsWithID(ctx, id)
 }
 
 func (s *SportNewsService) GetNews(ctx context.Context) ([]model.News, error) {

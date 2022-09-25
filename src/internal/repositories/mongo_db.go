@@ -34,9 +34,9 @@ func (repo *MongoDBRepository) StoreNews(ctx context.Context, news []model.News)
 	return nil
 }
 
-func (repo *MongoDBRepository) GetNewsWithID(ctx context.Context, key, value string) (model.News, error) {
+func (repo *MongoDBRepository) GetNewsWithID(ctx context.Context, id string) (model.News, error) {
 	var news model.News
-	filter := bson.M{key: value}
+	filter := bson.M{"id": id}
 	err := repo.Database.Collection(repo.CollectionName).FindOne(ctx, filter).Decode(&news)
 	if err != nil {
 		return model.News{}, err

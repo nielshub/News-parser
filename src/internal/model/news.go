@@ -61,3 +61,25 @@ type NewsArticleInformation struct {
 		IsPublished       string `xml:"IsPublished"`
 	} `xml:"NewsArticle"`
 }
+
+type NewsResponse struct {
+	Status   string               `json:"status"`
+	Data     []News               `json:"data"`
+	Metadata NewsResponseMetadata `json:"metadata"`
+}
+
+type NewsResponseMetadata struct {
+	CreatedAt  time.Time `json:"createdAt"`
+	TotalItems int       `json:"totalItems"`
+	Sort       string    `json:"sort"`
+}
+
+type NewsByIDResponse struct {
+	Status   string               `json:"status"`
+	Data     News                 `json:"data"`
+	Metadata NewsResponseMetadata `json:"metadata"`
+}
+
+type NewsResponseByIDMetadata struct {
+	CreatedAt time.Time `json:"createdAt"`
+}
