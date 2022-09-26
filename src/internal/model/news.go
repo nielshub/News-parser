@@ -101,9 +101,9 @@ type NewsResponseMetadata struct {
 }
 
 type NewsByIDResponse struct {
-	Status   string               `json:"status"`
-	Data     News                 `json:"data"`
-	Metadata NewsResponseMetadata `json:"metadata"`
+	Status   string                   `json:"status"`
+	Data     News                     `json:"data"`
+	Metadata NewsResponseByIDMetadata `json:"metadata"`
 }
 
 type NewsResponseByIDMetadata struct {

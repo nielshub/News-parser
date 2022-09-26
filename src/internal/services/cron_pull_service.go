@@ -42,6 +42,11 @@ func NewCronPullService(relationalSportNewsDBRepository ports.NonRelationalSport
 
 func (cps *CronPullService) CronPullNewsRoutine(ctx context.Context) {
 	log.Logger.Info().Msgf("Starting pulling news routine")
+	err := cps.relationalSportNewsDBRepository.ClearCollectionNews(ctx)
+	if err != nil {
+		log.Logger.Error().Msgf("Error deleting old list news. Error: %s", err)
+		return
+	}
 	newsXMLList, err := cps.GetNewsFromFeed()
 	if err != nil {
 		log.Logger.Error().Msgf("Error getting list news. Error: %s", err)

@@ -49,7 +49,7 @@ func (snh *SportNewsHandler) getNews(c *gin.Context) {
 }
 
 func (snh *SportNewsHandler) getNewsByID(c *gin.Context) {
-	id := c.Query("id")
+	id := c.Param("id")
 
 	newsByID, err := snh.sportNewsService.GetNewsWithID(c, id)
 	if err != nil {
@@ -61,7 +61,7 @@ func (snh *SportNewsHandler) getNewsByID(c *gin.Context) {
 	response := model.NewsByIDResponse{
 		Status: "success",
 		Data:   *newsByID,
-		Metadata: model.NewsResponseMetadata{
+		Metadata: model.NewsResponseByIDMetadata{
 			CreatedAt: time.Now(),
 		},
 	}

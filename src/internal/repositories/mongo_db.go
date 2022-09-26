@@ -20,20 +20,17 @@ func NewMongoDBRepository(collectionName string, DB *mongo.Collection) *MongoDBR
 	}
 }
 
+func (repo *MongoDBRepository) ClearCollectionNews(ctx context.Context) error {
+	return repo.Database.Drop(ctx)
+}
+
 func (repo *MongoDBRepository) StoreNews(ctx context.Context, news []model.News) error {
-	//fmt.Println(news[0])
 	for i := range news {
 		_, err := repo.Database.InsertOne(ctx, news[i])
-		//Check insertManny with
-		//newValue := make([]interface{}, len(statements))
-		//for i := range statements {
-		// newValue[i] = statements[i]
-		//}
 		if err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 

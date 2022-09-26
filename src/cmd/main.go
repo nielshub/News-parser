@@ -62,7 +62,7 @@ func main() {
 	handlers.NewHealthHandler(app)
 	handlers.NewSportNewsHandler(app, sportNewsService)
 
-	//cronPullService.CronPullNewsRoutine(context.Background())
+	cronPullService.CronPullNewsRoutine(context.Background())
 
 	//Launch go cron routine
 	s := gocron.NewScheduler(time.UTC)
