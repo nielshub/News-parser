@@ -42,5 +42,4 @@ Unit test coverage is a little bit low, because it has been covered mainly the l
 
 - Configure env variables for the different environments
 - Add proper authentication middlewares for cybersecurity
-- Add K8 configurations to be able to scalate easy the application if high traffic or requests
 - More sensitive approach for cron go routines being able to communicate and block between go routines (server handler and cron routines)
