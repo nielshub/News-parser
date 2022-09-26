@@ -1,11 +1,11 @@
 version: '3.7'
 services:
-  # my-app:
-  #   build: .
-  #   ports:
-  #     - 8080:8080
-  #   networks:
-  #   - incrowd
+  my-app:
+    build: .
+    ports:
+      - 8080:8080
+    networks:
+    - incrowd
   mongodb:
     image: mongo
     restart: always

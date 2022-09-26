@@ -75,7 +75,7 @@ func (cps *CronPullService) GetNewsFromFeed() (model.NewListInformation, error) 
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return newsListXML, errors.New("error sending req for news feed. Error: " + err.Error())
+		return newsListXML, errors.New("error sending req for news feed.  URL: " + cps.pullNewsURL + " .Error: " + err.Error())
 	}
 
 	err = xml.NewDecoder(resp.Body).Decode(&newsListXML)

@@ -21,8 +21,8 @@ import (
 func main() {
 	// Start logger and load environment variables
 	log.Init("debug")
-	//err := godotenv.Load("/usr/local/bin/variables.env")
-	err := godotenv.Load("../../env/variables.env")
+	err := godotenv.Load("/usr/local/bin/variables.env")
+	//err := godotenv.Load("../../env/variables.env")
 	if err != nil {
 		log.Logger.Error().Msgf("Variables file not found... Error: %s", err)
 		panic(err)

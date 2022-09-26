@@ -5,7 +5,7 @@ Done by Niels Sanchez van den Beuken.
 ## Instructions to start the application on localhost
 
 - install docker and docker-compose
-- create variables.env file inside env folder (right now there are no critical values but here we could save apikey and sensitive stuff needed for real environments) with following values:
+- in this case file with env vars is attached. Normally will be in git ignore and will need to create variables.env file inside env folder (right now there are no critical values but here we could save apikey and sensitive stuff needed for real environments) with following values:
 
 ```[env]
 ENVIRONMENT="LOCAL"
@@ -18,7 +18,7 @@ ARTICLEURL="https://www.wearehullcity.co.uk/api/incrowd/getnewsarticleinformatio
 ```
 
 - run following command in main folder of the repo: docker-compose up --build
-- In order to check mongoDB: http://localhost:8081/ no password / user is required for this project
+- In order to check mongoDB: <http://localhost:8081/> no password / user is required for this project
 - In order to run the test manually in console run: go test -v ./...
 - Postman collection has been done, please see attached in the repository. In order to make it work you can:
   - News
