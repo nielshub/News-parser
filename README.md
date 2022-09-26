@@ -10,7 +10,7 @@ Done by Niels Sanchez van den Beuken.
 ```[env]
 ENVIRONMENT="LOCAL"
 VERSION = "1.0.0"
-DBURL="mongodb"
+DBURL="mongodb://mongodb:27017"
 SPORTNEWSCOLLECTIONNAME="news"
 DATABASENAME="incrowd"
 NEWSURL="https://www.wearehullcity.co.uk/api/incrowd/getnewlistinformation?count=5"

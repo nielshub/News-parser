@@ -1,0 +1,77 @@
+{
+	"info": {
+		"_postman_id": "b6d34e5f-94b2-4fe1-9bfb-72bcbee20478",
+		"name": "InCrowd",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11062632"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/health",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetNews",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/teams/t94/news",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"teams",
+						"t94",
+						"news"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetNewsByID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/teams/t94/news/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"teams",
+						"t94",
+						"news",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "9acf6939-896d-4dfa-9512-3218d6347814"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
