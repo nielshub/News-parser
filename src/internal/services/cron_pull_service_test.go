@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"incrowd/src/internal/model"
 	"incrowd/src/mocks"
@@ -22,8 +23,18 @@ type mocksCronPullService struct {
 }
 
 func queryNewsToFeed(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/xml")
+	bodyResp := model.NewListInformation{
+		ClubName:       "Hull City",
+		ClubWebsiteURL: "www.site.com",
+	}
+	bytesBodyResp, _ := xml.Marshal(bodyResp)
+	w.Write(bytesBodyResp)
+}
+
+func queryBadNewsToFeed(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "application/json")
-	bodyResp := model.NewListInformation{}
+	bodyResp := ""
 	bytesBodyResp, _ := json.Marshal(bodyResp)
 	w.Write(bytesBodyResp)
 }
@@ -31,8 +42,15 @@ func queryNewsToFeed(w http.ResponseWriter, r *http.Request) {
 func TestGetNewsFromFeed(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	// · Mocks · //
-	result := model.NewListInformation{}
-	queryError := errors.New("error sending req for news feed. Error:")
+	badResult := model.NewListInformation{}
+	result := model.NewListInformation{
+		XMLName: xml.Name{
+			Local: "NewListInformation",
+		},
+		ClubName:       "Hull City",
+		ClubWebsiteURL: "www.site.com",
+	}
+	queryError := errors.New("error decoding news feed response. Error: EOF")
 	// · Tests · //
 	type want struct {
 		result model.NewListInformation
@@ -57,11 +75,11 @@ func TestGetNewsFromFeed(t *testing.T) {
 		{
 			name: "Should return error - Failed to query DB",
 			want: want{
-				result: result,
+				result: badResult,
 				err:    queryError,
 			},
 			newsServerHandler: func(w http.ResponseWriter, r *http.Request) {
-				queryNewsToFeed(w, r)
+				queryBadNewsToFeed(w, r)
 			},
 		},
 	}
