@@ -73,7 +73,7 @@ func TestGetNewsFromFeed(t *testing.T) {
 			},
 		},
 		{
-			name: "Should return error - Failed to query DB",
+			name: "Should return error - Failed due to server answer is wrong",
 			want: want{
 				result: badResult,
 				err:    queryError,
