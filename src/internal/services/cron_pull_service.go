@@ -1,8 +1,16 @@
 package services
 
-import "incrowd/src/internal/ports"
+import (
+	"encoding/xml"
+	"errors"
+	"incrowd/src/internal/model"
+	"incrowd/src/internal/ports"
+	"net/http"
+	"os"
+)
 
 type CronPullService struct {
+	pullNewsURL                     string
 	relationalSportNewsDBRepository ports.NonRelationalSportNewsDBRepository
 }
 
@@ -20,3 +28,52 @@ type CronPullService struct {
 // 			"galleryUrls": null, GalleryImageURLs XML DETAIL
 // 			"videoUrl": null, VideoURL XML DETAIL
 // 			"published": "2022-07-21T15:48:00.000Z" PublishDate XML GENERICS
+
+func NewCronPullService(relationalSportNewsDBRepository ports.NonRelationalSportNewsDBRepository) *CronPullService {
+	return &CronPullService{
+		pullNewsURL:                     os.Getenv("NEWSURL"),
+		relationalSportNewsDBRepository: relationalSportNewsDBRepository,
+	}
+}
+
+func (cps *CronPullService) CronPullNewsRoutine() {
+	//s := gocron.NewScheduler(time.UTC)
+
+}
+
+func (cps *CronPullService) GetNewsFromFeed() (model.NewListInformation, error) {
+	client := &http.Client{}
+	newsListXML := model.NewListInformation{}
+	req, err := http.NewRequest("GET", cps.pullNewsURL, nil)
+	if err != nil {
+		return newsListXML, errors.New("error creating req for news feed. URL: " + cps.pullNewsURL + " .Error: " + err.Error())
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return newsListXML, errors.New("error sending req for news feed. Error: " + err.Error())
+	}
+
+	err = xml.NewDecoder(resp.Body).Decode(&newsListXML)
+	if err != nil {
+		return newsListXML, errors.New("error decoding news feed response. Error: " + err.Error())
+	}
+
+	return newsListXML, nil
+}
+
+func (cps *CronPullService) CreateNewsArrayFromXMLList(newsListInXML model.NewListInformation) []model.News {
+	var newsArray []model.News
+	newsArrayInXML := newsListInXML.NewsletterNewsItems.NewsletterNewsItem
+
+	for _, newsInXML := range newsArrayInXML {
+		news := model.News{}
+		news.CreateNewsStructFromGenericXMLNewsList(newsInXML)
+		newsArray = append(newsArray, news)
+	}
+
+	return newsArray
+}
+
+func (cps *CronPullService) GetDetailInformationForEachNews(news *[]model.News) error {
+	return nil
+}
