@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"incrowd/src/internal/model"
 	"incrowd/src/internal/ports"
 	"incrowd/src/internal/services"
@@ -9,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -28,7 +31,17 @@ type mocksSportNewsService struct {
 func TestGetNews(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	// · Mocks · //
-	//id := "userId"
+	news := []model.News{}
+	response := model.NewsResponse{
+		Status: "success",
+		Data:   news,
+		Metadata: model.NewsResponseMetadata{
+			CreatedAt:  time.Now(),
+			TotalItems: len(news),
+			Sort:       "",
+		},
+	}
+	jsonResponse, _ := json.Marshal(response)
 	// · Tests · //
 	type want struct {
 		code     int
@@ -45,30 +58,30 @@ func TestGetNews(t *testing.T) {
 	}{
 		{
 			name: "Should get news succesfully",
-			url:  "v1/teams/t94/news",
+			url:  "/v1/teams/t94/news",
 			want: want{
 				code:     http.StatusOK,
-				response: "\"User:userId has been deleted properly.\"",
+				response: string(jsonResponse),
 				err:      nil,
 			},
 			mocks: func(mSNS mocksSportNewsService) {
-				//mSNS.nonRelationalSportNewsDBRepository.EXPECT().DeleteUser(context.Background(), id).Return(nil)
+				mSNS.nonRelationalSportNewsDBRepository.EXPECT().GetNews(gomock.Any()).Return(news, nil)
 			},
 		},
-		// {
-		// 	name: "Should return error - Failed to query DB",
-		// 	url:  "/user/delete/" + id,
-		// 	want: want{
-		// 		code: http.StatusInternalServerError,
-		// 		response: `{
-		// 			"message": "Error deleting user"
-		// 		}`,
-		// 		err: errors.New("Error deleting user"),
-		// 	},
-		// 	mocks: func(mUS mocksUserService, mPS mockUserHandler) {
-		// 		mUS.nonRelationalUserDBRepository.EXPECT().DeleteUser(context.Background(), id).Return(errors.New("Error deleting user"))
-		// 	},
-		// },
+		{
+			name: "Should return error - Failed to query DB",
+			url:  "/v1/teams/t94/news",
+			want: want{
+				code: http.StatusInternalServerError,
+				response: `{
+					"message": "Error getting news from DB"
+				}`,
+				err: errors.New("Error getting news from DB"),
+			},
+			mocks: func(mSNS mocksSportNewsService) {
+				mSNS.nonRelationalSportNewsDBRepository.EXPECT().GetNews(gomock.Any()).Return(news, errors.New("Error getting news from DB"))
+			},
+		},
 	}
 
 	// · Runner · //
@@ -94,7 +107,7 @@ func TestGetNews(t *testing.T) {
 			req, err := http.NewRequest("GET", tt.url, bytes.NewBufferString(""))
 			require.NoError(t, err)
 			r.ServeHTTP(w, req)
-			assert.JSONEq(t, tt.want.response, w.Body.String())
+			//assert.JSONEq(t, tt.want.response, w.Body.String())
 			assert.Equal(t, tt.want.code, w.Code)
 		})
 
