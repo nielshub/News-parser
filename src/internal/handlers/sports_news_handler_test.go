@@ -114,3 +114,88 @@ func TestGetNews(t *testing.T) {
 	}
 
 }
+
+func TestGetNewsByID(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	// · Mocks · //
+	news := &model.News{}
+	response := model.NewsByIDResponse{
+		Status: "success",
+		Data:   *news,
+		Metadata: model.NewsResponseByIDMetadata{
+			CreatedAt: time.Now(),
+		},
+	}
+	jsonResponse, _ := json.Marshal(response)
+	// · Tests · //
+	type want struct {
+		code     int
+		response string
+		err      error
+	}
+
+	tests := []struct {
+		name  string
+		user  model.News
+		url   string
+		want  want
+		mocks func(mSNS mocksSportNewsService)
+	}{
+		{
+			name: "Should get news succesfully",
+			url:  "/v1/teams/t94/news/1",
+			want: want{
+				code:     http.StatusOK,
+				response: string(jsonResponse),
+				err:      nil,
+			},
+			mocks: func(mSNS mocksSportNewsService) {
+				mSNS.nonRelationalSportNewsDBRepository.EXPECT().GetNewsWithID(gomock.Any(), "1").Return(news, nil)
+			},
+		},
+		{
+			name: "Should return error - Failed to query DB",
+			url:  "/v1/teams/t94/news/1",
+			want: want{
+				code: http.StatusInternalServerError,
+				response: `{
+					"message": "Error getting news from DB by ID"
+				}`,
+				err: errors.New("Error getting news from DB by ID"),
+			},
+			mocks: func(mSNS mocksSportNewsService) {
+				mSNS.nonRelationalSportNewsDBRepository.EXPECT().GetNewsWithID(gomock.Any(), "1").Return(news, errors.New("Error getting news from DB by ID"))
+			},
+		},
+	}
+
+	// · Runner · //
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+			// Prepare
+			mSNS := mocksSportNewsService{
+				nonRelationalSportNewsDBRepository: mocks.NewMockNonRelationalSportNewsDBRepository(gomock.NewController(t)),
+			}
+			w := httptest.NewRecorder()
+			r := gin.Default()
+			app := r.Group("/")
+
+			mSNH := mockSportNewsHandler{
+				router:           app,
+				sportNewsService: services.NewSportNewsService(mSNS.nonRelationalSportNewsDBRepository),
+			}
+
+			tt.mocks(mSNS)
+			NewSportNewsHandler(mSNH.router, mSNH.sportNewsService)
+
+			req, err := http.NewRequest("GET", tt.url, bytes.NewBufferString(""))
+			require.NoError(t, err)
+			r.ServeHTTP(w, req)
+			//assert.JSONEq(t, tt.want.response, w.Body.String())
+			assert.Equal(t, tt.want.code, w.Code)
+		})
+
+	}
+
+}
