@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
+	"github.com/go-co-op/gocron"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -45,6 +46,7 @@ func main() {
 	db := client.Database(dataBaseName)
 	NonRelationalSportNewsDBRepository := repositories.NewMongoDBRepository(sportNewsCollectionName, db)
 	sportNewsService := services.NewSportNewsService(NonRelationalSportNewsDBRepository)
+	cronPullService := services.NewCronPullService(NonRelationalSportNewsDBRepository)
 
 	r := gin.Default()
 	app := r.Group("/")
@@ -54,6 +56,10 @@ func main() {
 
 	handlers.NewHealthHandler(app)
 	handlers.NewSportNewsHandler(app, sportNewsService)
+
+	//Launch go cron routine
+	s := gocron.NewScheduler(time.UTC)
+	s.Every(5).Minutes().Do(func() { cronPullService.CronPullNewsRoutine(context.Background()) })
 
 	// Run server
 	log.Logger.Info().Msgf("Starting server")

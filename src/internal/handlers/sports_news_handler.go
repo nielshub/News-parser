@@ -30,8 +30,8 @@ func NewSportNewsHandler(app *gin.RouterGroup, sportNewsService ports.SportNewsS
 func (snh *SportNewsHandler) getNews(c *gin.Context) {
 	news, err := snh.sportNewsService.GetNews(c)
 	if err != nil {
-		log.Logger.Error().Msgf("Error getting news. Error: %s", err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error getting news"})
+		log.Logger.Error().Msgf("Error getting news from DB. Error: %s", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error getting news from DB"})
 		return
 	}
 
@@ -53,8 +53,8 @@ func (snh *SportNewsHandler) getNewsByID(c *gin.Context) {
 
 	newsByID, err := snh.sportNewsService.GetNewsWithID(c, id)
 	if err != nil {
-		log.Logger.Error().Msgf("Error getting news with ID: "+id+". Error: %s", err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error getting news by ID"})
+		log.Logger.Error().Msgf("Error getting news from DB with ID: "+id+". Error: %s", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Error getting news from DB by ID"})
 		return
 	}
 

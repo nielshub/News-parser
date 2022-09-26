@@ -1,10 +1,12 @@
 package services
 
 import (
+	"context"
 	"encoding/xml"
 	"errors"
 	"incrowd/src/internal/model"
 	"incrowd/src/internal/ports"
+	"incrowd/src/log"
 	"net/http"
 	"os"
 )
@@ -38,8 +40,23 @@ func NewCronPullService(relationalSportNewsDBRepository ports.NonRelationalSport
 	}
 }
 
-func (cps *CronPullService) CronPullNewsRoutine() {
-	//s := gocron.NewScheduler(time.UTC)
+func (cps *CronPullService) CronPullNewsRoutine(ctx context.Context) {
+	newsXMLList, err := cps.GetNewsFromFeed()
+	if err != nil {
+		log.Logger.Error().Msgf("Error getting list news. Error: %s", err)
+		return
+	}
+	newsJSONList := cps.CreateNewsArrayFromXMLList(newsXMLList)
+	newsListWithDetailedInformation, err := cps.GetDetailInformationForEachNews(newsJSONList)
+	if err != nil {
+		log.Logger.Error().Msgf("Error getting article news. Error: %s", err)
+		return
+	}
+	err = cps.relationalSportNewsDBRepository.StoreNews(ctx, newsListWithDetailedInformation)
+	if err != nil {
+		log.Logger.Error().Msgf("Error storing news into DB. Error: %s", err)
+		return
+	}
 
 }
 
@@ -76,27 +93,29 @@ func (cps *CronPullService) CreateNewsArrayFromXMLList(newsListInXML model.NewLi
 	return newsArray
 }
 
-func (cps *CronPullService) GetDetailInformationForEachNews(news []model.News) error {
+func (cps *CronPullService) GetDetailInformationForEachNews(news []model.News) ([]model.News, error) {
+	var newsDetailedArray []model.News
 	for i := range news {
 		client := &http.Client{}
 		newsDetailXML := model.NewsArticleInformation{}
 		articleURL := cps.pullArticleURL + news[i].ArticleID
 		req, err := http.NewRequest("GET", articleURL, nil)
 		if err != nil {
-			return errors.New("error creating req for news feed. URL: " + articleURL + " .Error: " + err.Error())
+			return nil, errors.New("error creating req for news feed. URL: " + articleURL + " .Error: " + err.Error())
 		}
 		resp, err := client.Do(req)
 		if err != nil {
-			return errors.New("error sending req for news feed. Error: " + err.Error())
+			return nil, errors.New("error sending req for news feed. Error: " + err.Error())
 		}
 
 		err = xml.NewDecoder(resp.Body).Decode(&newsDetailXML)
 		if err != nil {
-			return errors.New("error decoding news feed response. Error: " + err.Error())
+			return nil, errors.New("error decoding news feed response. Error: " + err.Error())
 		}
 
 		news[i].CreateNewsStructFromDetailXMLNews(newsDetailXML.NewsArticle)
+		newsDetailedArray = append(newsDetailedArray, news[i])
 	}
 
-	return nil
+	return newsDetailedArray, nil
 }
