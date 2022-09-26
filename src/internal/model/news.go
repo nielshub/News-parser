@@ -20,6 +20,7 @@ type News struct {
 	GalleryUrls string   `json:"galleryUrls"`
 	VideoURL    string   `json:"videoUrl"`
 	Published   string   `json:"published"`
+	ArticleID   string   `json:"articleID"`
 }
 
 func (n *News) CreateNewsStructFromGenericXMLNewsList(newsXMLGenerics NewsletterNewsItem) {
@@ -30,6 +31,7 @@ func (n *News) CreateNewsStructFromGenericXMLNewsList(newsXMLGenerics Newsletter
 	n.Teaser = newsXMLGenerics.TeaserText
 	n.URL = newsXMLGenerics.ArticleURL
 	n.Published = newsXMLGenerics.PublishDate
+	n.ArticleID = newsXMLGenerics.NewsArticleID
 }
 
 func (n *News) CreateNewsStructFromDetailXMLNews(newsXMLDetail NewsArticle) {

@@ -11,6 +11,7 @@ import (
 
 type CronPullService struct {
 	pullNewsURL                     string
+	pullArticleURL                  string
 	relationalSportNewsDBRepository ports.NonRelationalSportNewsDBRepository
 }
 
@@ -32,6 +33,7 @@ type CronPullService struct {
 func NewCronPullService(relationalSportNewsDBRepository ports.NonRelationalSportNewsDBRepository) *CronPullService {
 	return &CronPullService{
 		pullNewsURL:                     os.Getenv("NEWSURL"),
+		pullArticleURL:                  os.Getenv("ARTICLEURL"),
 		relationalSportNewsDBRepository: relationalSportNewsDBRepository,
 	}
 }
@@ -74,6 +76,27 @@ func (cps *CronPullService) CreateNewsArrayFromXMLList(newsListInXML model.NewLi
 	return newsArray
 }
 
-func (cps *CronPullService) GetDetailInformationForEachNews(news *[]model.News) error {
+func (cps *CronPullService) GetDetailInformationForEachNews(news []model.News) error {
+	for i := range news {
+		client := &http.Client{}
+		newsDetailXML := model.NewsArticleInformation{}
+		articleURL := cps.pullArticleURL + news[i].ArticleID
+		req, err := http.NewRequest("GET", articleURL, nil)
+		if err != nil {
+			return errors.New("error creating req for news feed. URL: " + articleURL + " .Error: " + err.Error())
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			return errors.New("error sending req for news feed. Error: " + err.Error())
+		}
+
+		err = xml.NewDecoder(resp.Body).Decode(&newsDetailXML)
+		if err != nil {
+			return errors.New("error decoding news feed response. Error: " + err.Error())
+		}
+
+		news[i].CreateNewsStructFromDetailXMLNews(newsDetailXML.NewsArticle)
+	}
+
 	return nil
 }
