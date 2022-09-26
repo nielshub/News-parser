@@ -101,16 +101,16 @@ func (cps *CronPullService) GetDetailInformationForEachNews(news []model.News) (
 		articleURL := cps.pullArticleURL + news[i].ArticleID
 		req, err := http.NewRequest("GET", articleURL, nil)
 		if err != nil {
-			return nil, errors.New("error creating req for news feed. URL: " + articleURL + " .Error: " + err.Error())
+			return nil, errors.New("error creating req for news article feed. URL: " + articleURL + " .Error: " + err.Error())
 		}
 		resp, err := client.Do(req)
 		if err != nil {
-			return nil, errors.New("error sending req for news feed. Error: " + err.Error())
+			return nil, errors.New("error sending req for news article feed. Error: " + err.Error())
 		}
 
 		err = xml.NewDecoder(resp.Body).Decode(&newsDetailXML)
 		if err != nil {
-			return nil, errors.New("error decoding news feed response. Error: " + err.Error())
+			return nil, errors.New("error decoding news feed article response. Error: " + err.Error())
 		}
 
 		news[i].CreateNewsStructFromDetailXMLNews(newsDetailXML.NewsArticle)
