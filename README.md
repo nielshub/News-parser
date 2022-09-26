@@ -23,6 +23,7 @@ ARTICLEURL="https://www.wearehullcity.co.uk/api/incrowd/getnewsarticleinformatio
 - Postman collection has been done, please see attached in the repository. In order to make it work you can:
   - News
   - News by ID
+  - Health
 
 ## An explanation of the choices taken and assumptions made during development
 
@@ -32,6 +33,8 @@ Moreover, with the docker image and docker compose is easy to implement in diffe
 Code is mainly synchronous because with defined requirements there is no need to over engineer things. The only asynchronous routine is the go cron routine to pull new information from the feed URL, process it and save it to the mongo DB. If necessary it can be implemented communication between routines to check if all the information has been gathered correctly then allow the server to process api calls. This has not been implemented.
 
 Logger has been implemented in a very simple way just calling it as an internal global var initialized in main.
+
+A health handler has been added just as a good practice.
 
 Unit test coverage is a little bit low, because it has been covered mainly the logic of the microservice and avoided many repetitions in similar patterns/logic . Should be higher.
 
