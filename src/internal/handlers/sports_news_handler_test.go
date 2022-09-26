@@ -51,7 +51,6 @@ func TestGetNews(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		user  model.News
 		url   string
 		want  want
 		mocks func(mSNS mocksSportNewsService)
@@ -136,7 +135,6 @@ func TestGetNewsByID(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		user  model.News
 		url   string
 		want  want
 		mocks func(mSNS mocksSportNewsService)
