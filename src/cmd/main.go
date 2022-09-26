@@ -15,12 +15,14 @@ import (
 	"github.com/go-co-op/gocron"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func main() {
 	// Start logger and load environment variables
 	log.Init("debug")
-	err := godotenv.Load("/usr/local/bin/variables.env")
+	//err := godotenv.Load("/usr/local/bin/variables.env")
+	err := godotenv.Load("../../env/variables.env")
 	if err != nil {
 		log.Logger.Error().Msgf("Variables file not found... Error: %s", err)
 		panic(err)
@@ -40,10 +42,16 @@ func main() {
 			panic(err)
 		}
 	}()
+	err = client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		log.Logger.Error().Msgf("Error not connected to mongoDB. Error: %s", err)
+		return
+	}
+
 	log.Logger.Info().Msgf("Connected to users DB")
 
 	// Create repositories / services / handlers and app
-	db := client.Database(dataBaseName)
+	db := client.Database(dataBaseName).Collection(sportNewsCollectionName)
 	NonRelationalSportNewsDBRepository := repositories.NewMongoDBRepository(sportNewsCollectionName, db)
 	sportNewsService := services.NewSportNewsService(NonRelationalSportNewsDBRepository)
 	cronPullService := services.NewCronPullService(NonRelationalSportNewsDBRepository)
@@ -51,11 +59,10 @@ func main() {
 	r := gin.Default()
 	app := r.Group("/")
 
-	// Time to cron get info
-	time.Sleep(20 * time.Second)
-
 	handlers.NewHealthHandler(app)
 	handlers.NewSportNewsHandler(app, sportNewsService)
+
+	//cronPullService.CronPullNewsRoutine(context.Background())
 
 	//Launch go cron routine
 	s := gocron.NewScheduler(time.UTC)

@@ -1,0 +1,7 @@
+FROM golang:1.18-alpine as build
+
+WORKDIR /go/src/app
+
+COPY . .
+
+CMD ["/go/src/app/main"]
