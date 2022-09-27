@@ -22,7 +22,6 @@ func main() {
 	// Start logger and load environment variables
 	log.Init("debug")
 	err := godotenv.Load("/usr/local/bin/variables.env")
-	//err := godotenv.Load("../../env/variables.env")
 	if err != nil {
 		log.Logger.Error().Msgf("Variables file not found... Error: %s", err)
 		panic(err)
@@ -62,11 +61,10 @@ func main() {
 	handlers.NewHealthHandler(app)
 	handlers.NewSportNewsHandler(app, sportNewsService)
 
-	cronPullService.CronPullNewsRoutine(context.Background())
-
 	//Launch go cron routine
 	s := gocron.NewScheduler(time.UTC)
 	s.Every(5).Minutes().Do(func() { cronPullService.CronPullNewsRoutine(context.Background()) })
+	s.StartAsync()
 
 	// Run server
 	log.Logger.Info().Msgf("Starting server")
