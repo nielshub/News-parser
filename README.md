@@ -38,6 +38,8 @@ A health handler has been added just as a good practice.
 
 Unit test coverage is a little bit low, because it has been covered mainly the logic of the microservice and avoided many repetitions in similar patterns/logic . Should be higher.
 
+As sending project in zip there attached folders .* and files such as dockerfile.dev , please ignore them since they where only used for development (dev container, git...)
+
 ## Possible extensions or improvements to the service (focusing on scalability and deployment to production)
 
 - Configure env variables for the different environments
