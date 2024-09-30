@@ -1,4 +1,4 @@
-# Incrowd code test
+# News parser
 
 Done by Niels Sanchez van den Beuken.
 
